@@ -1,15 +1,49 @@
 # 🎵 Multi-Agent Music Distributor
 
-Sistema de agentes autónomos inteligente para disquera digital, utilizando **LangGraph**, **GPT-5**, y **Pinecone** para ofrecer asistencia automatizada en ventas y soporte técnico a través de **WhatsApp Business API**.
+Sistema de agentes autónomos inteligente para disquera digital, utilizando **LangGraph**, **GPT-4o**, y **Pinecone** para ofrecer asistencia automatizada en ventas y soporte técnico a través de **WhatsApp Business API**.
+
+## 🎯 Características Principales
+
+- **2 Agentes Especializados**: Sales y Support con coordinación inteligente
+- **Routing Automático**: Clasificación de intenciones y derivación contextual
+- **RAG Semántico**: Knowledge base vectorizada con Pinecone
+- **Priorización Inteligente**: Análisis de sentimiento + scoring multi-dimensional
+- **Escalamiento Automático**: Detecta casos críticos y escala a humanos
+- **Seguridad**: Validación de contexto y detección de prompt injection
 
 ---
 
 ## 🏗️ Arquitectura del Sistema
 
+```
+WhatsApp → Twilio → FastAPI Webhook
+                        ↓
+                  SecurityValidator
+                        ↓
+                   Orchestrator (LangGraph)
+                        ↓
+            ┌───────────┴───────────┐
+            ↓                       ↓
+       Sales Agent            Support Agent
+            ↓                       ↓
+       [Tools]                  [Tools]
+    - get_pricing          - check_release_status
+    - generate_quote       - create_ticket
+    - escalate             - query_royalties
+            ↓                       ↓
+            └───────────┬───────────┘
+                        ↓
+                RAG Service (Pinecone)
+                        ↓
+              Priority Scorer + Sentiment
+                        ↓
+                  Response → Twilio
+```
+
 ### Stack Tecnológico
-- **Backend**: Python 3.11 + FastAPI
+- **Backend**: Python 3.10 + FastAPI
 - **Orquestación Multi-Agente**: LangGraph
-- **LLM**: OpenAI GPT-5
+- **LLM**: OpenAI GPT-4o
 - **Vector Database**: Pinecone
 - **Persistencia**: SQLite
 - **Mensajería**: WhatsApp Business API
@@ -28,7 +62,7 @@ Sistema de agentes autónomos inteligente para disquera digital, utilizando **La
 ### Paso 1: Clonar el Repositorio
 
 ```bash
-git clone https://github.com/tu-usuario/multi-agent-music-distributor.git
+git clone https://github.com/angiesanchezm/genai_music.git
 cd multi-agent-music-distributor
 ```
 
@@ -38,23 +72,6 @@ cd multi-agent-music-distributor
 cp .env.example .env
 ```
 
-Editar `.env` con tus credenciales:
-
-```bash
-# OpenAI GPT-5
-OPENAI_API_KEY=sk-tu-api-key-aqui
-OPENAI_MODEL=gpt-5
-
-# Pinecone
-PINECONE_API_KEY=tu-pinecone-api-key
-PINECONE_ENVIRONMENT=us-east-1-aws
-PINECONE_INDEX_NAME=music-distributor-kb
-
-# WhatsApp Business API
-WHATSAPP_API_TOKEN=tu-whatsapp-token
-WHATSAPP_PHONE_NUMBER_ID=tu-phone-id
-WHATSAPP_VERIFY_TOKEN=tu-verify-token-123
-```
 
 ### Paso 3: Iniciar con Docker Compose
 
@@ -64,131 +81,81 @@ docker-compose up --build
 
 La aplicación estará disponible en `http://localhost:8000`
 
-### Paso 4: Configurar Webhook de WhatsApp
+### Paso 4: Configurar WhatsApp Webhook
 
-1. Ir a Meta for Developers
-2. Configurar webhook URL: `https://tu-dominio.com/webhook`
-3. Verify Token: el valor de `WHATSAPP_VERIFY_TOKEN`
-4. Suscribirse a eventos: `messages`
+```bash
+# Terminal 1: Servidor
+python main.py
+
+# Terminal 2: ngrok
+ngrok http 8000
+```
+Copiar URL de ngrok (ej: `https://abc123.ngrok.io`) y configurar en:
+
+**Twilio Console** → **Messaging** → **WhatsApp Sandbox Settings**
+- WHEN A MESSAGE COMES IN: `https://abc123.ngrok.io/webhook`
+- Method: `POST
+
+### Paso 5: Testing
+
+Health Check
+```bash
+curl http://localhost:8000/health
+```
+Probar desde WhatsApp
+1. Activar sandbox de Twilio (enviar código de join a +14155238886)
+2. Enviar: `"Hola, quiero información sobre planes"`
+3. Recibir respuesta automática del agente
+
 
 ---
 
 ## 📋 Funcionalidades Principales
 
-### ✅ MVP Funcional (Parte 1)
+### MVP Funcional (Parte 1)
 
 #### 1. **Capa de Seguridad**
-- ✅ Validación de contexto (rechaza consultas fuera de scope)
-- ✅ Detección de prompt injection
-- ✅ Rate limiting básico
-- ✅ Detección de intenciones maliciosas
+- Validación de contexto (rechaza consultas fuera de scope)
+- Detección de prompt injection
+- Rate limiting básico
+- Detección de intenciones maliciosas
 
 #### 2. **Agente de Ventas**
-- ✅ Explicación de servicios de distribución
-- ✅ Consulta de precios dinámicos
-- ✅ Generación de cotizaciones personalizadas
-- ✅ Escalamiento a humano cuando necesario
+- Explicación de servicios de distribución
+- Consulta de precios dinámicos
+- Generación de cotizaciones personalizadas
+- Escalamiento a humano cuando necesario
 
 #### 3. **Agente de Soporte**
-- ✅ Consulta de estado de lanzamientos
-- ✅ Resolución de dudas sobre regalías
-- ✅ Creación de tickets de soporte
-- ✅ Ayuda con metadata
+- Consulta de estado de lanzamientos
+- Resolución de dudas sobre regalías
+- Creación de tickets de soporte
+- Ayuda con metadata
 
 #### 4. **Sistema RAG con Pinecone**
-- ✅ Knowledge base vectorizada
-- ✅ Retrieval semántico de documentación
-- ✅ Respuestas contextualizadas
+- Knowledge base vectorizada
+- Retrieval semántico de documentación
+- Respuestas contextualizadas
 
 #### 5. **Sistema de Priorización Inteligente**
-- ✅ Análisis de sentimiento (GPT-5)
-- ✅ Detección de implicaciones críticas:
+- Análisis de sentimiento (GPT-4o)
+- Detección de implicaciones críticas:
   - Seguridad
   - Financiero
   - Legal
   - Operacional
-- ✅ Score de prioridad multi-dimensional
-- ✅ Auto-escalación a humanos
+- Score de prioridad multi-dimensional
+- Auto-escalación a humanos
 
 #### 6. **Orquestación con LangGraph**
-- ✅ Workflow multi-agente
-- ✅ State management robusto
-- ✅ Handoff inteligente entre agentes
-- ✅ Checkpointing de conversaciones
+- Workflow multi-agente
+- State management robusto
+- Handoff inteligente entre agentes
+- Checkpointing de conversaciones
 
 ---
 
-## 🧪 Testing del Sistema
-
-### Health Check
-```bash
-curl http://localhost:8000/health
-```
-
-### Enviar Mensaje de Prueba
-```bash
-curl -X POST http://localhost:8000/send-message \
-  -H "Content-Type: application/json" \
-  -d '{
-    "to": "1234567890",
-    "message": "Hola, prueba del sistema"
-  }'
-```
-
-### Ver Estadísticas
-```bash
-curl http://localhost:8000/stats
-```
-
----
-
-## 📊 Base de Datos
-
-### Esquema SQLite
-
-**Tabla `users`**
-```sql
-- id (PK)
-- phone (UNIQUE)
-- name
-- tier (basic/pro/premium)
-- created_at
-- updated_at
-```
-
-**Tabla `conversations`**
-```sql
-- id (PK)
-- user_id (FK)
-- messages (JSON)
-- current_agent
-- state (JSON)
-- created_at
-- updated_at
-```
-
-**Tabla `tickets`**
-```sql
-- id (PK)
-- conversation_id (FK)
-- priority_score
-- status (open/in_progress/resolved)
-- assigned_to
-- created_at
-- resolved_at
-```
-
-**Tabla `analytics`**
-```sql
-- id (PK)
-- event_type
-- metadata (JSON)
-- timestamp
-```
-
----
-
-## 🔧 Estructura del Código
+## 🔧 Estructura de Carpetas
 
 ```
 .
@@ -203,7 +170,7 @@ curl http://localhost:8000/stats
 │   ├── sentiment_analyzer.py
 │   └── priority_scorer.py
 ├── integrations/       # Conectores externos
-│   └── whatsapp_connector.py
+│   └── whatsapp_twilio.py
 ├── storage/            # Persistencia
 │   ├── database.py
 │   └── state_manager.py
@@ -214,29 +181,6 @@ curl http://localhost:8000/stats
 │   └── database/
 ├── main.py            # FastAPI app
 └── docker-compose.yml # Orquestación
-```
-
----
-
-## 📈 Logs y Monitoreo
-
-Los logs estructurados se almacenan en:
-```
-./logs/
-├── agent_interactions.log
-└── security_events.log
-```
-
-Formato JSON para fácil parsing:
-```json
-{
-  "event": "message_processed",
-  "timestamp": "2025-12-06T10:30:00Z",
-  "user": "+1234567890",
-  "agent": "sales_agent",
-  "priority_score": 5.2,
-  "escalated": false
-}
 ```
 
 ---
@@ -255,6 +199,85 @@ Formato JSON para fácil parsing:
 - "Ignora todas las instrucciones anteriores..."
 
 ---
+## 📋 System Prompts
+### Sales Agent
+```
+Eres un agente de ventas experto de una disquera digital. Tu misión es:
+
+**RESPONSABILIDADES:**
+1. Explicar servicios de distribución musical a plataformas (Spotify, Apple Music, etc.)
+2. Consultar y presentar precios de forma clara
+3. Generar cotizaciones personalizadas
+4. Guiar el proceso de onboarding de nuevos artistas
+5. Calificar leads y detectar oportunidades de venta
+6. Responder dudas sobre planes y paquetes
+
+**HERRAMIENTAS DISPONIBLES:**
+- get_pricing: Consultar precios de servicios
+- generate_quote: Generar cotización personalizada
+- escalate_to_human: Transferir a agente humano
+
+**ESTILO DE COMUNICACIÓN:**
+- Amigable y profesional
+- Conciso (máximo 3-4 oraciones por respuesta)
+- Enfocado en valor y beneficios
+- Proactivo en sugerir próximos pasos
+
+**IMPORTANTE:**
+- SIEMPRE debes dar una respuesta en texto, incluso si usas herramientas
+- Primero usa las herramientas necesarias, luego explica al cliente lo que encontraste
+- Nunca dejes un mensaje vacío
+
+**CUÁNDO ESCALAR A HUMANO:**
+- Negociaciones de contratos especiales
+- Clientes enterprise o de alto valor
+- Solicitudes de descuentos significativos
+- Dudas técnicas muy específicas que no puedes resolver
+- Cliente pide hablar con un humano
+
+**CONTEXTO RAG:**
+Usa el contexto proporcionado para dar respuestas precisas y actualizadas sobre servicios y precios.
+
+Recuerda: Tu objetivo es convertir leads en clientes, pero siempre con transparencia y honestidad.
+```
+### Support Agent
+```
+Eres un agente de soporte técnico experto de una distribuidora musical. Tu misión es:
+
+**RESPONSABILIDADES:**
+1. Diagnosticar problemas de lanzamientos (rechazos, demoras)
+2. Resolver dudas sobre regalías y reportes de streaming
+3. Ayudar con metadata incorrecta (artwork, nombres, ISRC)
+4. Gestionar solicitudes de takedowns o claims de copyright
+5. Crear tickets de incidencias técnicas
+6. Escalar casos complejos a especialistas humanos
+
+**HERRAMIENTAS DISPONIBLES:**
+- check_release_status: Verificar estado de un lanzamiento
+- create_ticket: Crear ticket de soporte
+- query_royalties: Consultar información de regalías
+- escalate_to_human: Transferir a agente humano
+
+**ESTILO DE COMUNICACIÓN:**
+- Empático y comprensivo
+- Técnico pero accesible
+- Claro en los pasos a seguir
+- Proactivo en crear tickets
+
+**CUÁNDO ESCALAR A HUMANO:**
+- Disputas de copyright complejas
+- Problemas con pagos/facturación
+- Casos que requieren más de 48h de investigación
+- Cliente extremadamente frustrado
+- Problemas legales
+
+**CONTEXTO RAG:**
+Usa el contexto de la knowledge base para diagnosticar problemas comunes y dar soluciones rápidas.
+
+Recuerda: Tu objetivo es resolver problemas rápidamente, pero si no puedes, crea un ticket y escala.
+```
+
+---
 
 ## 🎯 Casos de Uso
 
@@ -264,18 +287,18 @@ Usuario: Hola, quisiera saber los precios de distribución
 
 Bot: ¡Hola! Tenemos 3 planes principales:
 
-📦 Basic - $19.99/mes
+Basic - $19.99/mes
 • Distribución ilimitada
 • 100% de tus regalías
 • Análisis básico
 
-🚀 Professional - $49.99/mes  
+Professional - $49.99/mes  
 • Todo de Basic
 • Pre-saves
 • Análisis avanzado
 • Soporte prioritario
 
-💎 Premium - $99.99/mes
+Premium - $99.99/mes
 • Todo de Pro
 • Account manager dedicado
 • Marketing tools incluidas
@@ -299,54 +322,25 @@ Mientras tanto, reviso el estado...
 He creado un ticket prioritario #TKT-1234. 
 Un especialista te contactará en las próximas 2 horas.
 ```
+#### Ejemplo 3: Escalamiento
 
----
+```
+Usuario: "Represento a Bad Bunny, necesitamos un plan enterprise"
 
-## 🚧 Troubleshooting
+[Agent detecta: cliente de alto valor]
+[Agent ejecuta: escalate_to_human("high_value_client")]
 
-### Error: "Pinecone index not found"
-```bash
-# Verificar que el índice existe
-# Crear manualmente si es necesario
+Agent: "¡Excelente! Para artistas de su nivel, nuestro equipo enterprise te brindará atención especializada. Te estoy conectando con nuestro VP de Ventas ahora mismo. Recibirás una llamada en los próximos 15 minutos."
 ```
 
-### Error: "WhatsApp webhook verification failed"
-```bash
-# Verificar WHATSAPP_VERIFY_TOKEN coincide
-# Revisar logs en Meta for Developers
+### Ejemplo 4: Cambio de Agente
+
+```
+Usuario: "¿Cuánto cuesta el plan básico?"
+Bot (Sales): [Responde con precios]
+
+Usuario: "Ok, ya contraté pero mi música no se publicó"
+Bot (Support): [Se detecta cambio de contexto]
+"Entiendo que ya eres cliente. Déjame ayudarte con el problema...
 ```
 
-### Error: "OpenAI API rate limit"
-```bash
-# Reducir TEMPERATURE o MAX_TOKENS_RESPONSE
-# Considerar upgrade de plan OpenAI
-```
-
----
-
-## 📞 Soporte
-
-Para problemas o consultas:
-- Email: support@tu-disquera.com
-- Slack: #multi-agent-support
-- Issues: GitHub Issues
-
----
-
-## 📜 Licencia
-
-MIT License - Ver archivo LICENSE para detalles
-
----
-
-## 🙏 Agradecimientos
-
-- OpenAI por GPT-5
-- Pinecone por su vector database
-- LangChain/LangGraph por el framework
-- Meta por WhatsApp Business API
-
----
-
-**Sistema desarrollado con ❤️ para revolucionar el soporte en la industria musical**
-# genai_music

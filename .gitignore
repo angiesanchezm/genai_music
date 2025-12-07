@@ -1,3 +1,21 @@
-# Ignorar entornos virtuales de Python
-venv/
-.venv/
+# Virtual envs
+*aaenv/
+
+# variables de entorno
+.env
+
+#gitignore
+*.gitignore
+
+#pycache
+*__pycache__/
+
+# Otros files
+*test_local.py
+*dashboard.py
+*requirements_v0.txt
+*README_v0.md
+
+#OS
+.DS_Store
+.vscode/

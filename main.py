@@ -10,7 +10,7 @@ from storage.state_manager import StateManager, ConversationState
 from services.security_validator import SecurityValidator
 from services.rag_service import RAGService
 from orchestrator.router import AgentOrchestrator
-from integrations.whatsapp_connector import WhatsAppConnector
+from integrations.whatsapp_twilio import WhatsAppTwilioConnector
 import structlog
 import json
 from datetime import datetime
@@ -31,7 +31,7 @@ state_manager: StateManager = None
 security_validator: SecurityValidator = None
 rag_service: RAGService = None
 orchestrator: AgentOrchestrator = None
-whatsapp: WhatsAppConnector = None
+whatsapp: WhatsAppTwilioConnector = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -49,12 +49,18 @@ async def lifespan(app: FastAPI):
     security_validator = SecurityValidator()
     rag_service = RAGService()
     orchestrator = AgentOrchestrator(rag_service, state_manager)
-    whatsapp = WhatsAppConnector()
+    
+    # Inicializar conector de Twilio
+    whatsapp = WhatsAppTwilioConnector(
+        account_sid=settings.twilio_account_sid,
+        auth_token=settings.twilio_auth_token,
+        from_number=settings.twilio_whatsapp_number
+    )
     
     # Cargar knowledge base inicial
     await load_initial_knowledge_base()
     
-    logger.info("application_ready")
+    logger.info("application_ready", connector="twilio")
     
     yield
     
@@ -112,76 +118,51 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
+        "connector": "twilio",
         "services": {
             "database": "ok",
             "rag": "ok",
-            "orchestrator": "ok"
+            "orchestrator": "ok",
+            "whatsapp": "ok"
         }
     }
-
-@app.get("/webhook")
-async def verify_webhook(
-    request: Request,
-    hub_mode: str = None,
-    hub_verify_token: str = None,
-    hub_challenge: str = None
-):
-    """
-    Verificación de webhook de WhatsApp
-    GET endpoint para validación inicial
-    """
-    mode = request.query_params.get("hub.mode")
-    token = request.query_params.get("hub.verify_token")
-    challenge = request.query_params.get("hub.challenge")
-    
-    if not all([mode, token, challenge]):
-        raise HTTPException(status_code=400, detail="Missing parameters")
-    
-    result = whatsapp.verify_webhook(mode, token, challenge)
-    
-    if result:
-        return Response(content=result, media_type="text/plain")
-    else:
-        raise HTTPException(status_code=403, detail="Verification failed")
 
 @app.post("/webhook")
 async def receive_webhook(request: Request):
     """
-    Recibir mensajes de WhatsApp
+    Recibir mensajes de WhatsApp vía Twilio
     POST endpoint para mensajes entrantes
     """
     try:
-        body = await request.json()
+        # Twilio envía datos como form-data, no JSON
+        form_data = await request.form()
+        form_dict = dict(form_data)
         
-        logger.info("webhook_received", body=body)
+        logger.info("webhook_received", data=form_dict)
         
         # Parsear mensaje
-        parsed_message = whatsapp.parse_webhook_message(body)
+        parsed_message = whatsapp.parse_webhook_message(form_dict)
         
         if not parsed_message:
-            return JSONResponse(content={"status": "no_message"})
-        
-        # Marcar como leído
-        await whatsapp.mark_as_read(parsed_message["message_id"])
+            return Response(content="No message", media_type="text/plain", status_code=200)
         
         # Procesar mensaje de forma asíncrona
         await process_incoming_message(parsed_message)
         
-        return JSONResponse(content={"status": "success"})
+        # Twilio requiere respuesta rápida
+        return Response(content="OK", media_type="text/plain", status_code=200)
         
     except Exception as e:
         logger.error("webhook_error", error=str(e))
-        return JSONResponse(
-            content={"status": "error", "message": str(e)},
-            status_code=200  # WhatsApp requiere 200 siempre
-        )
+        # Twilio requiere 200 siempre
+        return Response(content="Error", media_type="text/plain", status_code=200)
 
-async def process_incoming_message(message_data: Dict):
+async def process_incoming_message(message_data: dict):
     """Procesar mensaje entrante"""
     try:
         user_phone = message_data["from"]
         message_text = message_data["text"]
-        user_name = message_data.get("name")
+        user_name = message_data.get("name", "Usuario")
         
         logger.info(
             "processing_message",
@@ -190,21 +171,22 @@ async def process_incoming_message(message_data: Dict):
         )
         
         # 1. Validación de seguridad
-        is_valid, reason = await security_validator.validate_message(
-            message_text,
-            user_phone
-        )
-        
-        if not is_valid:
-            rejection_msg = security_validator.get_rejection_message(reason)
-            await whatsapp.send_message(user_phone, rejection_msg)
-            
-            logger.warning(
-                "message_rejected",
-                user=user_phone,
-                reason=reason
+        if settings.enable_security_validation:
+            is_valid, reason = await security_validator.validate_message(
+                message_text,
+                user_phone
             )
-            return
+            
+            if not is_valid:
+                rejection_msg = security_validator.get_rejection_message(reason)
+                await whatsapp.send_message(user_phone, rejection_msg)
+                
+                logger.warning(
+                    "message_rejected",
+                    user=user_phone,
+                    reason=reason
+                )
+                return
         
         # 2. Obtener o crear usuario
         user_id = await db_manager.get_or_create_user(user_phone, user_name)
@@ -302,7 +284,8 @@ async def get_stats():
         "total_conversations": 0,
         "active_tickets": 0,
         "avg_response_time": 0,
-        "escalation_rate": 0
+        "escalation_rate": 0,
+        "connector": "twilio"
     }
 
 if __name__ == "__main__":
