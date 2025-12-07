@@ -1,0 +1,57 @@
+# SISTEMA DE REGALÍAS
+
+## ¿Cómo funcionan las regalías?
+Las regalías son los pagos que recibes cuando tu música se reproduce en plataformas de streaming. Conservas el 100% de tus regalías con todos nuestros planes.
+
+## Cálculo de Regalías
+
+### Por Plataforma (estimados promedio):
+- Spotify: $0.003 - $0.005 por stream
+- Apple Music: $0.007 - $0.01 por stream
+- YouTube Music: $0.002 - $0.004 por stream
+- Deezer: $0.005 - $0.007 por stream
+- Tidal: $0.01 - $0.015 por stream
+
+*Nota: Las tasas varían según país, tipo de suscripción del oyente y otros factores.*
+
+## Calendario de Pagos
+- Procesamiento mensual de regalías
+- Las plataformas reportan con 60-90 días de retraso
+- Ejemplo: streams de enero se pagan en marzo-abril
+- Pagos se procesan el día 15 de cada mes
+- Mínimo para retiro: $50 USD
+
+## Métodos de Pago
+- Transferencia bancaria (ACH/Wire)
+- PayPal
+- Wise
+- Payoneer
+
+## Reportes de Regalías
+Accede a reportes detallados en tu dashboard:
+- Streams por plataforma
+- Ingresos por territorio
+- Tendencias de crecimiento
+- Top canciones y álbumes
+- Demografía de oyentes
+
+## Splits de Regalías
+Con el plan Professional o superior, puedes dividir regalías automáticamente entre:
+- Co-escritores
+- Productores
+- Featured artists
+- Managers
+
+## Preguntas Frecuentes
+
+**¿Cuándo veré mis regalías?**
+Las plataformas tienen un delay de 60-90 días. Los streams de enero aparecerán en marzo-abril.
+
+**¿Por qué mis regalías son bajas?**
+Las tasas por stream son pequeñas. 1,000 streams en Spotify = aprox $3-5 USD.
+
+**¿Puedo cambiar mis datos de pago?**
+Sí, en cualquier momento desde tu dashboard.
+
+**¿Hay comisiones?**
+No. Conservas el 100% de tus regalías. Solo pagas la suscripción mensual/anual.

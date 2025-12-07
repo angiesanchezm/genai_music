@@ -1,0 +1,52 @@
+# SERVICIOS DE DISTRIBUCIÓN MUSICAL
+
+## ¿Qué es la distribución digital?
+La distribución digital es el proceso de llevar tu música a plataformas de streaming como Spotify, Apple Music, YouTube Music, Deezer, Amazon Music y más de 150 plataformas globales.
+
+## Planes Disponibles
+
+### Plan Basic ($19.99/mes o $199.99/año)
+- Distribución ilimitada a todas las plataformas
+- Conserva el 100% de tus regalías
+- Análisis básico de streams y oyentes
+- Soporte por email
+- ISRC y UPC gratuitos
+- Tiempo de aprobación: 3-5 días
+
+### Plan Professional ($49.99/mes o $499.99/año)
+Incluye todo de Basic más:
+- Pre-saves en Spotify y Apple Music
+- Análisis avanzado y reportes detallados
+- Promoción en playlists editoriales
+- Soporte prioritario (respuesta en 24h)
+- Splits automáticos para colaboradores
+- Release scheduling avanzado
+- Tiempo de aprobación: 1-2 días
+
+### Plan Premium ($99.99/mes o $999.99/año)
+Incluye todo de Professional más:
+- Account manager dedicado
+- Herramientas de marketing incluidas
+- Prioridad en pitch a playlists
+- Consultoría de lanzamiento
+- Soporte 24/7
+- Tiempo de aprobación: mismo día
+
+## Proceso de Onboarding
+
+1. Crear cuenta y seleccionar plan
+2. Completar información de artista
+3. Subir tu música y artwork
+4. Agregar metadata (título, género, fecha de lanzamiento)
+5. Seleccionar plataformas de distribución
+6. Revisar y enviar para aprobación
+7. Publicación en la fecha programada
+
+## Plataformas Soportadas
+Spotify, Apple Music, YouTube Music, Deezer, Amazon Music, Tidal, Pandora, iHeartRadio, TikTok, Instagram, Facebook, Beatport, Traxsource, y más de 150 plataformas adicionales.
+
+## Requisitos Técnicos
+- Formato de audio: WAV (16-bit o 24-bit) o FLAC
+- Artwork: JPG o PNG, mínimo 3000x3000 píxeles
+- Metadata completa: título, artista, género, año
+- Letra (opcional pero recomendado)

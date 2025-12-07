@@ -1,0 +1,33 @@
+# Core Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# LangGraph & LangChain
+langgraph==0.0.40
+langchain==0.1.6
+langchain-openai==0.0.5
+langchain-community==0.0.20
+
+# OpenAI GPT-5
+openai==1.12.0
+
+# Vector Database
+pinecone-client==3.0.2
+
+# Database
+aiosqlite==0.19.0
+sqlalchemy==2.0.25
+
+# WhatsApp Integration
+requests==2.31.0
+httpx==0.26.0
+
+# Utilities
+python-dotenv==1.0.1
+python-multipart==0.0.6
+tenacity==8.2.3
+
+# Logging & Monitoring
+structlog==24.1.0
